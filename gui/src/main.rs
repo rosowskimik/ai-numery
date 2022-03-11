@@ -1,3 +1,5 @@
+use gui::MainWindow;
+
 fn main() {
-    println!("Hello, World!");
+    MainWindow::run()
 }
