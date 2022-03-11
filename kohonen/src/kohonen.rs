@@ -54,7 +54,11 @@ impl<K: Ord> Kohonen<K> {
         self.weights
             .iter()
             .map(|(k, (w, c))| {
-                let score = (w * &normalized).sum() / c;
+                let score = if *c != 0 {
+                    (w * &normalized).sum() / c
+                } else {
+                    0
+                };
                 (k, score)
             })
             .max_by(|(_, v1), (_, v2)| v1.partial_cmp(v2).unwrap())
@@ -63,9 +67,13 @@ impl<K: Ord> Kohonen<K> {
     }
 
     fn ideal_score(&self, key: &K) -> Option<i64> {
-        self.weights
-            .get(key)
-            .map(|(w, c)| w.into_iter().map(|&v| i64::abs(v)).sum::<i64>() / *c)
+        self.weights.get(key).map(|(w, c)| {
+            if *c != 0 {
+                w.into_iter().map(|&v| i64::abs(v)).sum::<i64>() / *c
+            } else {
+                i64::MAX
+            }
+        })
     }
 }
 
