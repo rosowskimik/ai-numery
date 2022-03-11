@@ -5,8 +5,6 @@ use std::collections::BTreeMap;
 #[cfg(feature = "persist")]
 use serde::{Deserialize, Serialize};
 
-// def normalize_bipolar()
-
 #[derive(Debug)]
 #[cfg_attr(feature = "persist", derive(Serialize, Deserialize))]
 pub struct Kohonen<K: Ord> {
