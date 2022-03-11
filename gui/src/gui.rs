@@ -11,9 +11,10 @@ use eframe::{
     run_native, NativeOptions,
 };
 
+use kohonen::Kohonen;
 use ndarray::Array2;
 
-use crate::{CANVAS_SIZE, MATRIX_DIMS, WINDOW_DIMS};
+use crate::{CANVAS_SIZE, DATA_PATH, MATRIX_DIMS, WINDOW_DIMS};
 
 fn centered_label(ui: &mut Ui, text: impl Into<String>) -> Response {
     let text = RichText::new(text).size(30.0);
@@ -52,14 +53,20 @@ where
 #[derive(Debug)]
 pub struct MainWindow {
     canvas: Canvas,
+    kohonen: Kohonen<u8>,
     current_number: u8,
     current_guess: Option<u8>,
 }
 
 impl MainWindow {
     pub fn run() -> ! {
+        let kohonen = match Kohonen::load_from(DATA_PATH) {
+            Ok(k) => k,
+            Err(_) => Kohonen::init(MATRIX_DIMS, 0..=9),
+        };
         let app = Box::new(Self {
             canvas: Canvas::default(),
+            kohonen,
             current_number: 0,
             current_guess: None,
         });
@@ -109,10 +116,17 @@ impl App for MainWindow {
                             self.canvas.clear();
                         }
                         if control_button(ui, "Teach").clicked() {
-                            dbg!(&self.canvas.pixel_matrix);
+                            self.kohonen
+                                .teach(self.current_number, &self.canvas.pixel_matrix);
+                            // dbg!(&self.canvas.pixel_matrix);
+                            self.kohonen
+                                .save_to(DATA_PATH)
+                                .expect("Failed to save data");
                         }
                         if control_button(ui, "Guess").clicked() {
-                            self.current_guess = Some(3);
+                            let (guess, confidence) = self.kohonen.guess(&self.canvas.pixel_matrix);
+                            dbg!(confidence);
+                            self.current_guess = Some(*guess);
                         }
                     });
                 });
@@ -140,7 +154,7 @@ impl App for MainWindow {
 pub struct Canvas {
     lines: Vec<Vec<Pos2>>,
     stroke: Stroke,
-    pixel_matrix: Array2<i8>,
+    pixel_matrix: Array2<u8>,
     scale: Option<(f32, f32)>,
 }
 
