@@ -1,5 +1,7 @@
 # SI - Rozpoznawanie Numerów
 
+![Preview](assets/image.png)
+
 ## Opis
 
 Aplikacja, którą można nauczyć rozpoznawać odręcznie pisane cyfry od 0-9.
