@@ -1,5 +1,6 @@
-mod consts;
-mod gui;
+pub(crate) mod canvas;
+pub(crate) mod components;
+pub(crate) mod consts;
+pub(crate) mod gui;
 
-pub use consts::*;
-pub use gui::*;
+pub use gui::MainWindow;
